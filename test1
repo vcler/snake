@@ -1,0 +1,135 @@
+#include <iostream>
+#include <conio.h>
+#include <time.h>
+#include <Windows.h>
+#include <stdio.h>
+#include <stdbool.h>
+
+const int height = 21, width = 21;
+bool gameover = false;
+int fruitX, fruitY, x = 10, y = 10;
+int sx[width] = { 0 };
+int sy[height] = { 0 };
+int in_size = 1, counter = 0, score = 0;
+char* arr = (char*)malloc(in_size * sizeof(char));
+
+void draw() {
+    system("cls");
+
+    for (int i = 0; i <= height; i++) {
+
+        for (int j = 0; j <= width; j++) {
+
+            if (i == 0 && j == width) printf("# Score: %d", score); //prints score indicator
+
+            else if (j == 0 || j == width || i == 0 || i == height) printf("#"); //prints border
+
+            else if (j == x && i == y) printf("O"); //prints the snakes head
+
+            else if (sx[j] != 0 && sy[i] != 0) printf("o"); //prints the snkaes body
+
+            else if (j == fruitX && i == fruitY) printf("+"); //prints the fruit
+             
+            else printf(" ");
+
+        }
+        printf("\n");
+    }
+}
+
+void fruit() {
+    //creates the fruits position
+    srand(time(0));
+    fruitX = rand() % (width - 2) + 1;
+    fruitY = rand() % (height - 2) + 1;
+}
+
+void input() {
+    //checks which key is pressed and stores it in arr
+    if (_kbhit()) {
+
+        switch (_getch()) {
+        case 'w':
+            arr[counter] = 'w';
+            break;
+        case 's':
+            arr[counter] = 's';
+            break;
+        case 'd':
+            arr[counter] = 'd';
+            break;
+        case 'a':
+            arr[counter] = 'a';
+            break;
+        }
+    }
+
+    //i have to comment these two lines otherwise it stops working ;(
+    //else arr[counter] = arr[counter - 1];
+    //counter++;
+    in_size++;
+    arr = (char*)realloc(arr, in_size); //incrase arr size to save next keyboard hit
+}
+
+void logic() {
+    //gameover (not complete)
+    if (x == 0 || x == width || y == 0 || y == height) gameover = true;
+
+    //sneker eat
+    if (x == fruitX && y == fruitY) {
+        score++;
+        fruit();
+    }
+
+    //snake move head
+    switch (arr[counter]) {
+    case 'w':
+        y--;
+        break;
+    case 's':
+        y++;
+        break;
+    case 'd':
+        x++;
+        break;
+    case 'a':
+        x--;
+        break;
+    }
+
+    //snake move body
+    int posX = x, posY = y;
+
+    for (int i = 0; i < score; i++) { // i < score as thats the amount of body parts i have to print 
+        
+        switch (arr[score - i]) { //check what key was lased pressed
+        case 'w' :
+            sy[posY - 1] = 1; //if the snake moved up, its body other part is behind it, so reverse
+            posY--; //so i can re-use for next body part
+            break;
+        case 's' :
+            sy[posY + 1] = 1;
+            posY++;
+        case 'd' :
+            sx[posX - 1] = 1;
+            posX--;
+        case 'a' :
+            sx[posX + 1] = 1;
+            posX++;
+        }
+    }
+}
+
+int main() {
+    fruit();
+
+    while (!gameover) {
+        input();
+        logic();
+        draw();
+        Sleep(200);
+
+    }
+
+    return 0;
+}
