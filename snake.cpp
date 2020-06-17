@@ -1,20 +1,21 @@
 // snake.cpp : Diese Datei enthält die Funktion "main". Hier beginnt und endet die Ausführung des Programms.
 //
 
-#include <iostream>
+//#include <iostream>
 #include <conio.h>
 #include <time.h>
 #include <Windows.h>
 #include <stdio.h>
 #include <stdbool.h>
-using namespace std;
+//using namespace std;
+#define width 31
+#define height 21
 
-const int height = 21, width = 21;
 bool gameover = false;
-int fruitX, fruitY, x = 10, y = 10;
+int fruitX, fruitY, x = width/2, y = height/2;
 int snakexy[width][width] = { 0 };
 
-int in_size = 1, counter = 0, score = 0;
+int in_size = 1, counter = 0, score = 3, randtime = 0;
 char arr[1000000] = { 0 };
 
 void draw() {
@@ -24,7 +25,7 @@ void draw() {
 
         for (int j = 0; j <= width; j++) {
 
-            if (i == 0 && j == width) printf("# Score: %d", score); //prints score indicator
+            if (i == 0 && j == width) printf("# Score: %d | WASD", score - 3); //prints score indicator
 
             else if (j == 0 || j == width || i == 0 || i == height) printf("#"); //prints border
 
@@ -43,7 +44,6 @@ void draw() {
 
 void fruit() {
     //creates the fruits position
-    srand(time(0));
     fruitX = rand() % (width - 2) + 1;
     fruitY = rand() % (height - 2) + 1;
 
@@ -77,7 +77,7 @@ void input() {
 }
 
 void logic() {
-    //gameover (not complete)
+    //gameover
     if (x == 0 || x == width || y == 0 || y == height) gameover = true;
     for (int i = 0; i < width; i++) {
         for (int j = 0; j < height; j++) {
@@ -90,6 +90,8 @@ void logic() {
         score++;
         fruit();
     }
+    if (snakexy[fruitX][fruitY] != 0) fruit();
+    
 
     //snake move head
     switch (arr[counter - 1]) {
@@ -108,44 +110,11 @@ void logic() {
     }
 
     //snake move body
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
+    for (int i = 0; i < width; i++) {
+        for (int j = 0; j < height; j++) {
             snakexy[i][j] = 0;
         }
     }
-    
-    /*
-    for (int i = 1; i < score+1; i++) { 
-        
-        int tempy = y, tempx = x;
-
-        if ((x != 0 && y != 0) || (x != width && y != height)) {
-
-            for (int j = 0; j < i; j++) {
-
-                switch (arr[counter - j]) { 
-                case 'w':
-                    snakexy[tempx][tempy + 1] = 1;
-                    tempy += 1;
-                    break;
-                case 's':
-                    snakexy[tempx][tempy - 1] = 1;
-                    tempy -= 1;
-                    break;
-                case 'd':
-                    snakexy[tempx - 1][tempy] = 1;
-                    tempx -= 1;
-                    break;
-                case 'a':
-                    snakexy[tempx + 1][tempy] = 1;
-                    tempx += 1;
-                    break;
-                }
-            }
-        }        
-    }
-    */
     
     int tempy = y, tempx = x;
 
@@ -173,21 +142,23 @@ void logic() {
             }
         }
     }
-    
 
 }
 
 int main() {
 
+    srand(time(0));
     fruit();
 
     while (!gameover) {
         input();
         logic();
         draw();
-        Sleep(200);
+        Sleep(50);
 
     }
+    
+    printf("Game Over!  Your Score: %d",score-3);
 
     return 0;
 }
